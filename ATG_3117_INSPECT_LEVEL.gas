@@ -1,0 +1,41 @@
+Program.Sub.ScreenSU.Start
+Program.Sub.ScreenSU.End
+
+Program.Sub.Preflight.Start
+
+Program.Sub.Preflight.End
+
+Program.Sub.Main.Start
+'Buffalo Filter Inspection Level
+'Hook 15020, 15067
+
+V.Local.sSQL.Declare(String)
+V.Local.sPart.Declare
+
+
+F.Intrinsic.Control.If(V.Caller.Hook,=,"15020")
+	V.Passed.000199.Set("Inspection Lvl.")
+	F.Intrinsic.Control.End
+F.Intrinsic.Control.EndIf
+
+F.ODBC.Connection!CONX.OpenConnection(V.Ambient.PDSN,V.Ambient.PUSER,V.Ambient.PPass)
+
+F.Intrinsic.String.RPad(V.Passed.000071," ",17,V.Local.sPart)
+F.Intrinsic.String.Concat(V.Local.sPart,V.Passed.000025,V.Local.sPart)
+F.Intrinsic.String.Concat("SELECT CODE_RM_SHAPE, PART FROM INVENTORY_MSTR WHERE PART='",V.Local.sPart,"'",V.Local.sSQL)
+F.ODBC.Connection!CONX.OpenRecordsetRO("RSTINV",V.Local.sSQL)
+F.Intrinsic.Control.If(V.ODBC.CONX!RSTINV.EOF,=,False)
+	V.Passed.000073.Set(V.ODBC.CONX!RSTINV.FieldValTrim!CODE_RM_SHAPE)
+	V.Local.sSQL.Set(V.ODBC.CONX!RSTINV.FieldValTrim!CODE_RM_SHAPE)
+F.Intrinsic.Control.EndIf
+F.ODBC.CONX!RSTINV.Close
+
+F.ODBC.Connection!CONX.Close
+
+F.Intrinsic.Control.End
+
+
+
+Program.Sub.Main.End
+
+
